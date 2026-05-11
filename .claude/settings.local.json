@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(npm *)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\Rajan\\\\NilNil\\\\src\" -Recurse | Where-Object { -not $_.PSIsContainer } | Select-Object FullName | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\Users\\\\Rajan\\\\NilNil\\\\\", \"\"\\) })",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\Rajan\\\\NilNil\" -Recurse -Depth 2 | Select-Object FullName, @{Name='Type'; Expression={if \\($_.PSIsContainer\\) {'DIR'} else {'FILE'}}} | Format-Table -AutoSize)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\Rajan\\\\NilNil\\\\src\" -Recurse -File | Where-Object { $_.Extension -in @\\(\".tsx\", \".ts\"\\) } | Select-Object FullName)"
+    ]
+  }
+}
