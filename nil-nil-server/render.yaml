@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: nil-nil-server
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FOOTBALL_DATA_API_KEY
+        sync: false
+      - key: APN_KEY_ID
+        sync: false
+      - key: APN_TEAM_ID
+        sync: false
+      - key: APN_BUNDLE_ID
+        sync: false
+      - key: APN_PRIVATE_KEY
+        sync: false
