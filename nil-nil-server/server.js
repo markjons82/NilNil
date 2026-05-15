@@ -59,7 +59,7 @@ app.use((err, req, res, next) => {
 });
 
 // --- Start ---
-const server = app.listen(config.port, () => {
+const server = app.listen(config.port, '0.0.0.0', () => {
   logger.success(`Nil Nil server running on port ${config.port}`);
   logger.info(`Environment: ${config.nodeEnv}`);
   logger.info(`Health check: http://localhost:${config.port}/health`);

@@ -23,7 +23,7 @@ if (missing.length > 0) {
 }
 
 module.exports = {
-  port: process.env.PORT || 3000,
+  port: process.env.PORT,
   nodeEnv: process.env.NODE_ENV || 'development',
   isProduction: process.env.NODE_ENV === 'production',
 
