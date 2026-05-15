@@ -103,7 +103,7 @@ async function fetchLiveMatches() {
   try {
     const response = await apiClient.get(
       `/competitions/${config.footballData.plCompetitionId}/matches`,
-      { params: { status: 'LIVE,IN_PLAY,PAUSED' } }
+      { params: { status: 'IN_PLAY,PAUSED' } }
     );
     return response.data.matches || [];
   } catch (error) {
@@ -127,7 +127,7 @@ function hasActiveOrUpcomingMatches(matches) {
     const status = match.status;
 
     // Currently live
-    if (['IN_PLAY', 'PAUSED', 'LIVE'].includes(status)) return true;
+    if (['IN_PLAY', 'PAUSED'].includes(status)) return true;
 
     // Starting within 10 minutes
     if (status === 'TIMED' && kickoff - now < tenMinutes) return true;
