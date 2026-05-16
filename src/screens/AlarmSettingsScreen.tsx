@@ -17,6 +17,8 @@ import { colors } from '../theme/colors';
 import { formatKickoff, formatSectionTitle, Match } from '../data/matches';
 import { Team } from '../data/teams';
 import { saveAlarm, SavedAlarm } from '../data/alarms';
+import { getStoredDeviceToken } from '../services/pushNotifications';
+import { deriveAlarmType, registerAlarmWithBackend } from '../services/backendApi';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'AlarmSettings'>;
@@ -38,8 +40,8 @@ export default function AlarmSettingsScreen({ navigation, route }: Props) {
   const opponent = isHome ? match.awayTeam : match.homeTeam;
   const canConfirm = myTeamScores || anyGoal || firstGoal || preMatch;
 
-  const handleConfirm = () => {
-    saveAlarm({
+  const handleConfirm = async () => {
+    await saveAlarm({
       id: `${match.id}_${team.id}`,
       matchId: match.id,
       team,
@@ -51,6 +53,20 @@ export default function AlarmSettingsScreen({ navigation, route }: Props) {
       preMatchOffset: offset,
       createdAt: new Date().toISOString(),
     });
+
+    const alarmType = deriveAlarmType(myTeamScores, anyGoal, firstGoal);
+    if (alarmType) {
+      const deviceToken = await getStoredDeviceToken();
+      if (deviceToken) {
+        registerAlarmWithBackend({
+          deviceToken,
+          teamId: Number(team.id),
+          teamName: team.name,
+          alarmType,
+        }).catch(() => {});
+      }
+    }
+
     navigation.goBack();
   };
 
