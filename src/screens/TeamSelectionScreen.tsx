@@ -15,13 +15,13 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Team } from '../data/teams';
 import { colors } from '../theme/colors';
-import { RootStackParamList } from '../navigation/AppNavigator';
+import { HomeStackParamList } from '../navigation/AppNavigator';
 import { useFavorites } from '../hooks/useFavorites';
 import { useTeams } from '../hooks/useTeams';
 import { loadAlarms } from '../data/alarms';
 
 type Props = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'TeamSelection'>;
+  navigation: NativeStackNavigationProp<HomeStackParamList, 'TeamSelection'>;
 };
 
 type SectionDivider = { __type: 'divider' };
@@ -99,7 +99,7 @@ export default function TeamSelectionScreen({ navigation }: Props) {
         </View>
         <TouchableOpacity
           style={styles.bellButton}
-          onPress={() => navigation.navigate('ActiveAlarms')}
+          onPress={() => navigation.getParent()?.navigate('Alarms')}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Ionicons

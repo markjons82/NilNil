@@ -18,6 +18,7 @@ export async function registerAlarmWithBackend(params: {
   teamId: number;
   teamName: string;
   alarmType: AlarmType;
+  soundName?: string;
 }): Promise<void> {
   const response = await fetch(`${BACKEND_URL}/api/alarms/register`, {
     method: 'POST',

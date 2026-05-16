@@ -45,7 +45,7 @@ function getProvider() {
  * @param {number} goalData.minute - Minute the goal was scored
  * @param {string} goalData.scoringTeam - Which team scored ('home' or 'away')
  */
-async function sendGoalAlert(deviceToken, goalData) {
+async function sendGoalAlert(deviceToken, goalData, soundName = 'goal_alarm.wav') {
   const apnProvider = getProvider();
   if (!apnProvider) return { success: false, reason: 'APNs not configured' };
 
@@ -67,7 +67,7 @@ async function sendGoalAlert(deviceToken, goalData) {
   // The critical stuff - this is what wakes the user up
   notification.expiry = Math.floor(Date.now() / 1000) + 3600; // Expires in 1 hour
   notification.badge = 1;
-  notification.sound = 'goal_alarm.wav'; // You'll add this audio file to your Expo project
+  notification.sound = soundName;
   notification.alert = {
     title: `⚽ GOAL! ${scoringTeamName}`,
     subtitle: `${homeTeam} ${homeScore} - ${awayScore} ${awayTeam}`,

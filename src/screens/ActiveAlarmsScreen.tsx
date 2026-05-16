@@ -9,19 +9,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import { useFocusEffect } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { RootStackParamList } from '../navigation/AppNavigator';
 import { colors } from '../theme/colors';
 import { SavedAlarm, loadAlarms, removeAlarm } from '../data/alarms';
 import { formatSectionTitle, formatKickoff } from '../data/matches';
 
-type Props = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'ActiveAlarms'>;
-};
-
-export default function ActiveAlarmsScreen({ navigation }: Props) {
+export default function ActiveAlarmsScreen() {
   const [alarms, setAlarms] = useState<SavedAlarm[]>([]);
 
   const refresh = useCallback(async () => {
@@ -97,14 +92,7 @@ export default function ActiveAlarmsScreen({ navigation }: Props) {
       <StatusBar barStyle="light-content" backgroundColor={colors.background} />
 
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-        >
-          <Text style={styles.backArrow}>‹</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Active Alarms</Text>
-        <View style={{ width: 24 }} />
+        <Text style={styles.headerTitle}>Alarms</Text>
       </View>
 
       {alarms.length === 0 ? (
@@ -133,23 +121,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  backArrow: {
-    fontSize: 28,
-    color: colors.text,
-    lineHeight: 30,
-  },
   headerTitle: {
-    fontSize: 16,
+    fontSize: 28,
     fontWeight: '700',
     color: colors.text,
+    letterSpacing: -0.5,
   },
 
   empty: {

@@ -164,7 +164,7 @@ async function notifyDevices(devices, goal, currentMatch, isFirstGoal) {
   // Send notifications in parallel for speed
   const results = await Promise.allSettled(
     devices.map((device) =>
-      notificationService.sendGoalAlert(device.device_token, goalData)
+      notificationService.sendGoalAlert(device.device_token, goalData, device.sound_name)
     )
   );
 

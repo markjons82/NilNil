@@ -34,6 +34,18 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "sounds": [
+            "assets/sounds/goal_alarm.wav",
+            "assets/sounds/stadium_horn.wav",
+            "assets/sounds/match_whistle.wav"
+          ]
+        }
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "ab96c7dd-31ea-4eae-abf2-868f20d1462f"

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import {
   Image,
   SafeAreaView,
@@ -12,17 +13,18 @@ import {
 } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
+import { HomeStackParamList } from '../navigation/AppNavigator';
 import { colors } from '../theme/colors';
 import { formatKickoff, formatSectionTitle, Match } from '../data/matches';
 import { Team } from '../data/teams';
 import { saveAlarm, SavedAlarm } from '../data/alarms';
 import { getStoredDeviceToken } from '../services/pushNotifications';
 import { deriveAlarmType, registerAlarmWithBackend } from '../services/backendApi';
+import { getSelectedSoundId, getSoundById } from '../data/sounds';
 
 type Props = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'AlarmSettings'>;
-  route: RouteProp<RootStackParamList, 'AlarmSettings'>;
+  navigation: NativeStackNavigationProp<HomeStackParamList, 'AlarmSettings'>;
+  route: RouteProp<HomeStackParamList, 'AlarmSettings'>;
 };
 
 type PreMatchOffset = '15' | '30' | '60';
@@ -58,11 +60,13 @@ export default function AlarmSettingsScreen({ navigation, route }: Props) {
     if (alarmType) {
       const deviceToken = await getStoredDeviceToken();
       if (deviceToken) {
+        const sound = getSoundById(await getSelectedSoundId());
         registerAlarmWithBackend({
           deviceToken,
           teamId: Number(team.id),
           teamName: team.name,
           alarmType,
+          soundName: sound.apnsSound,
         }).catch(() => {});
       }
     }

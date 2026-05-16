@@ -40,7 +40,7 @@ export default function OnboardingScreen({ navigation }: Props) {
   const handleGetStarted = async () => {
     await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify([...selectedIds]));
     await AsyncStorage.setItem(ONBOARDING_KEY, '1');
-    navigation.replace('TeamSelection');
+    navigation.replace('Tabs');
   };
 
   const renderItem = ({ item }: { item: Team }) => {

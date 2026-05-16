@@ -32,7 +32,7 @@ export default function SplashScreen({ navigation }: Props) {
 
     const timer = setTimeout(async () => {
       const done = await AsyncStorage.getItem(ONBOARDING_KEY);
-      navigation.replace(done ? 'TeamSelection' : 'Onboarding');
+      navigation.replace(done ? 'Tabs' : 'Onboarding');
     }, 2200);
 
     return () => clearTimeout(timer);

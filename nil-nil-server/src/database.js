@@ -32,10 +32,18 @@ function initSchema() {
       team_name        TEXT    NOT NULL,
       alarm_type       TEXT    NOT NULL DEFAULT 'my_team',
       alarm_enabled    INTEGER NOT NULL DEFAULT 1,
+      sound_name       TEXT    NOT NULL DEFAULT 'goal_alarm.wav',
       created_at       TEXT    NOT NULL DEFAULT (datetime('now')),
       updated_at       TEXT    NOT NULL DEFAULT (datetime('now'))
     );
   `);
+
+  // Add sound_name to existing databases that predate this column
+  try {
+    database.exec(`ALTER TABLE devices ADD COLUMN sound_name TEXT NOT NULL DEFAULT 'goal_alarm.wav'`);
+  } catch {
+    // Column already exists — safe to ignore
+  }
 
   // goal_notifications table - track what we've already sent so we don't double-notify
   database.exec(`
@@ -54,22 +62,23 @@ function initSchema() {
 
 // --- Device operations ---
 
-function registerDevice({ deviceToken, teamId, teamName, alarmType = 'my_team' }) {
+function registerDevice({ deviceToken, teamId, teamName, alarmType = 'my_team', soundName = 'goal_alarm.wav' }) {
   const database = getDb();
   const stmt = database.prepare(`
-    INSERT INTO devices (device_token, team_id, team_name, alarm_type, alarm_enabled)
-    VALUES (@deviceToken, @teamId, @teamName, @alarmType, 1)
+    INSERT INTO devices (device_token, team_id, team_name, alarm_type, alarm_enabled, sound_name)
+    VALUES (@deviceToken, @teamId, @teamName, @alarmType, 1, @soundName)
     ON CONFLICT(device_token) DO UPDATE SET
       team_id       = excluded.team_id,
       team_name     = excluded.team_name,
       alarm_type    = excluded.alarm_type,
       alarm_enabled = 1,
+      sound_name    = excluded.sound_name,
       updated_at    = datetime('now')
   `);
-  return stmt.run({ deviceToken, teamId, teamName, alarmType });
+  return stmt.run({ deviceToken, teamId, teamName, alarmType, soundName });
 }
 
-function updatePreferences({ deviceToken, teamId, teamName, alarmType, alarmEnabled }) {
+function updatePreferences({ deviceToken, teamId, teamName, alarmType, alarmEnabled, soundName }) {
   const database = getDb();
   const updates = [];
   const params = { deviceToken };
@@ -78,6 +87,7 @@ function updatePreferences({ deviceToken, teamId, teamName, alarmType, alarmEnab
   if (teamName !== undefined) { updates.push('team_name = @teamName'); params.teamName = teamName; }
   if (alarmType !== undefined) { updates.push('alarm_type = @alarmType'); params.alarmType = alarmType; }
   if (alarmEnabled !== undefined) { updates.push('alarm_enabled = @alarmEnabled'); params.alarmEnabled = alarmEnabled ? 1 : 0; }
+  if (soundName !== undefined) { updates.push('sound_name = @soundName'); params.soundName = soundName; }
 
   if (updates.length === 0) return null;
 

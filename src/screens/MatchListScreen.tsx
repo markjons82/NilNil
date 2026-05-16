@@ -12,14 +12,14 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from '../navigation/AppNavigator';
+import { HomeStackParamList } from '../navigation/AppNavigator';
 import { colors } from '../theme/colors';
 import { Match, MatchSection, formatKickoff } from '../data/matches';
 import { useFixtures } from '../hooks/useFixtures';
 
 type Props = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'MatchList'>;
-  route: RouteProp<RootStackParamList, 'MatchList'>;
+  navigation: NativeStackNavigationProp<HomeStackParamList, 'MatchList'>;
+  route: RouteProp<HomeStackParamList, 'MatchList'>;
 };
 
 export default function MatchListScreen({ navigation, route }: Props) {

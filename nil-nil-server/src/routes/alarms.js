@@ -23,7 +23,7 @@ const VALID_ALARM_TYPES = ['my_team', 'any_goal', 'first_goal'];
  * }
  */
 router.post('/register', (req, res) => {
-  const { deviceToken, teamId, teamName, alarmType = 'my_team' } = req.body;
+  const { deviceToken, teamId, teamName, alarmType = 'my_team', soundName = 'goal_alarm.wav' } = req.body;
 
   if (!deviceToken) {
     return res.status(400).json({ error: 'deviceToken is required' });
@@ -38,8 +38,8 @@ router.post('/register', (req, res) => {
   }
 
   try {
-    db.registerDevice({ deviceToken, teamId, teamName, alarmType });
-    logger.success(`Device registered: ${teamName} alarm (${alarmType})`);
+    db.registerDevice({ deviceToken, teamId, teamName, alarmType, soundName });
+    logger.success(`Device registered: ${teamName} alarm (${alarmType}, sound: ${soundName})`);
 
     res.json({
       success: true,
