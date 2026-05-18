@@ -47,6 +47,17 @@ app.get('/health', (req, res) => {
   });
 });
 
+app.get('/api/debug/apns', (req, res) => {
+  const privateKey = process.env.APN_PRIVATE_KEY;
+  res.json({
+    APN_KEY_ID: process.env.APN_KEY_ID || null,
+    APN_TEAM_ID: process.env.APN_TEAM_ID || null,
+    APN_BUNDLE_ID: process.env.APN_BUNDLE_ID || null,
+    APN_PRIVATE_KEY_exists: !!privateKey,
+    APN_PRIVATE_KEY_preview: privateKey ? privateKey.slice(0, 20) : null,
+  });
+});
+
 // --- 404 handler ---
 app.use((req, res) => {
   res.status(404).json({ error: `Route not found: ${req.method} ${req.path}` });
