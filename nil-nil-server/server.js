@@ -4,6 +4,8 @@
 
 require('dotenv').config();
 
+console.log('[startup] Environment variables loaded:', Object.keys(process.env).join(', '));
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
