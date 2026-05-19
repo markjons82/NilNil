@@ -38,10 +38,11 @@ module.exports = {
     keyId: process.env.APN_KEY_ID,
     teamId: process.env.APN_TEAM_ID,
     bundleId: process.env.APN_BUNDLE_ID,
-    // The .p8 key content - handle both \n escaped and real newlines
-    privateKey: process.env.APN_PRIVATE_KEY
-      ? process.env.APN_PRIVATE_KEY.replace(/\\n/g, '\n')
-      : null,
+    privateKey: (() => {
+      const key = process.env.APN_PRIVATE_KEY;
+      if (!key) return null;
+      return key.includes('\n') ? key : key.replace(/\\n/g, '\n');
+    })(),
   },
 
   polling: {
