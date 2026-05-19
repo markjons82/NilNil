@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -18,16 +20,48 @@ import {
   getSelectedSoundId,
   setSelectedSoundId,
 } from '../data/sounds';
+import { getStoredDeviceToken } from '../services/pushNotifications';
+
+const BACKEND_URL = 'https://nilnil-production.up.railway.app';
 
 export default function SettingsScreen() {
   const [selectedId, setSelectedId] = useState('goal_alarm');
   const [playingId, setPlayingId] = useState<string | null>(null);
   const soundRef = useRef<Audio.Sound | null>(null);
 
+  const [deviceToken, setDeviceToken] = useState<string | null | undefined>(undefined);
+  const [testStatus, setTestStatus] = useState<'idle' | 'sending' | 'ok' | 'error'>('idle');
+  const [testMessage, setTestMessage] = useState('');
+
   useEffect(() => {
     getSelectedSoundId().then(setSelectedId);
+    getStoredDeviceToken().then(setDeviceToken);
     return () => { soundRef.current?.unloadAsync(); };
   }, []);
+
+  const sendTest = useCallback(async () => {
+    if (!deviceToken) return;
+    setTestStatus('sending');
+    setTestMessage('');
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/alarms/test`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deviceToken }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setTestStatus('ok');
+        setTestMessage(json.message ?? 'Sent!');
+      } else {
+        setTestStatus('error');
+        setTestMessage(json.error ?? `HTTP ${res.status}`);
+      }
+    } catch (err: any) {
+      setTestStatus('error');
+      setTestMessage(err.message ?? 'Network error');
+    }
+  }, [deviceToken]);
 
   const stopCurrent = useCallback(async () => {
     if (soundRef.current) {
@@ -101,6 +135,48 @@ export default function SettingsScreen() {
         <Text style={styles.systemNote}>
           System sounds cannot be previewed in-app. They play when a goal notification arrives.
         </Text>
+
+        {/* ── Debug panel ── */}
+        <Text style={[styles.sectionLabel, { marginTop: 32 }]}>DEBUG</Text>
+
+        <View style={styles.debugPanel}>
+          <Text style={styles.debugLabel}>DEVICE TOKEN</Text>
+          {deviceToken === undefined ? (
+            <ActivityIndicator size="small" color={colors.textMuted} style={{ marginVertical: 8 }} />
+          ) : deviceToken ? (
+            <TextInput
+              style={styles.debugToken}
+              value={deviceToken}
+              editable={false}
+              multiline
+              selectTextOnFocus
+            />
+          ) : (
+            <Text style={styles.debugNone}>Not stored — push permissions may be denied</Text>
+          )}
+
+          <TouchableOpacity
+            style={[styles.testButton, !deviceToken && styles.testButtonDisabled]}
+            onPress={sendTest}
+            disabled={!deviceToken || testStatus === 'sending'}
+            activeOpacity={0.8}
+          >
+            {testStatus === 'sending' ? (
+              <ActivityIndicator size="small" color={colors.black} />
+            ) : (
+              <Text style={[styles.testButtonText, !deviceToken && styles.testButtonTextDisabled]}>
+                Send Test Notification
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          {testMessage !== '' && (
+            <Text style={[styles.testResult, testStatus === 'error' && styles.testResultError]}>
+              {testStatus === 'ok' ? '✓ ' : '✗ '}{testMessage}
+            </Text>
+          )}
+        </View>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -281,5 +357,61 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     textAlign: 'center',
     paddingHorizontal: 8,
+  },
+
+  // Debug panel
+  debugPanel: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 16,
+    gap: 12,
+  },
+  debugLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.textMuted,
+    letterSpacing: 1,
+  },
+  debugToken: {
+    fontFamily: 'Courier',
+    fontSize: 11,
+    color: colors.accent,
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: 8,
+    padding: 10,
+    lineHeight: 18,
+  },
+  debugNone: {
+    fontSize: 13,
+    color: colors.textMuted,
+    fontStyle: 'italic',
+  },
+  testButton: {
+    backgroundColor: colors.accent,
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  testButtonDisabled: {
+    backgroundColor: colors.surfaceElevated,
+  },
+  testButtonText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.black,
+  },
+  testButtonTextDisabled: {
+    color: colors.textMuted,
+  },
+  testResult: {
+    fontSize: 13,
+    color: colors.accent,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  testResultError: {
+    color: '#EF4444',
   },
 });

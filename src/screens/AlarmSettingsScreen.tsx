@@ -43,6 +43,8 @@ export default function AlarmSettingsScreen({ navigation, route }: Props) {
   const canConfirm = myTeamScores || anyGoal || firstGoal || preMatch;
 
   const handleConfirm = async () => {
+    console.log('[AlarmSettings] handleConfirm triggered', { myTeamScores, anyGoal, firstGoal, preMatch });
+
     await saveAlarm({
       id: `${match.id}_${team.id}`,
       matchId: match.id,
@@ -55,20 +57,38 @@ export default function AlarmSettingsScreen({ navigation, route }: Props) {
       preMatchOffset: offset,
       createdAt: new Date().toISOString(),
     });
+    console.log('[AlarmSettings] alarm saved locally');
 
     const alarmType = deriveAlarmType(myTeamScores, anyGoal, firstGoal);
+    console.log('[AlarmSettings] derived alarmType:', alarmType);
+
     if (alarmType) {
       const deviceToken = await getStoredDeviceToken();
+      console.log('[AlarmSettings] deviceToken from storage:', deviceToken ? `${deviceToken.slice(0, 8)}…` : 'NULL — token not stored!');
+
       if (deviceToken) {
-        const sound = getSoundById(await getSelectedSoundId());
+        const soundId = await getSelectedSoundId();
+        const sound = getSoundById(soundId);
+        console.log('[AlarmSettings] calling registerAlarmWithBackend', {
+          teamId: Number(team.id),
+          teamName: team.name,
+          alarmType,
+          soundName: sound.apnsSound,
+        });
         registerAlarmWithBackend({
           deviceToken,
           teamId: Number(team.id),
           teamName: team.name,
           alarmType,
           soundName: sound.apnsSound,
-        }).catch(() => {});
+        })
+          .then(() => console.log('[AlarmSettings] registerAlarmWithBackend succeeded'))
+          .catch((err) => console.error('[AlarmSettings] registerAlarmWithBackend FAILED:', err));
+      } else {
+        console.warn('[AlarmSettings] skipping backend registration — no device token stored');
       }
+    } else {
+      console.log('[AlarmSettings] skipping backend registration — no goal alarm type selected (preMatch only?)');
     }
 
     navigation.goBack();
